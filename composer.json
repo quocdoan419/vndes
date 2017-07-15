@@ -1,5 +1,5 @@
 {
-	"name" : "evndes/vndes",
+	"name" : "quocdoan419/vndes",
 	"version" : "4.1.0",
 	"type" : "project",
 	"description" : "for ecom",
@@ -8,7 +8,7 @@
 		"vndes",
 		"e"
 	],
-	"homepage" : "https://github.com/quocdoan419/evndes",
+	"homepage" : "https://github.com/quocdoan419/vndes",
 	"license" : "GPL-2.0+",
 	"authors" : [{
 			"name" : "VNDES.,JSC",
