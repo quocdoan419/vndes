@@ -1,10 +1,10 @@
 <?php
 
 /**
- * @Project e.com.vn
- * @Author vndes.net
- 
- 
+ * @Project Vndes 4.x
+ * @Author VINADES.,JSC (contact@vinades.vn)
+ * @Copyright (C) 2014 VINADES.,JSC. All rights reserved
+ * @License GNU/GPL version 2 or any later version
  * @Createdate Thu, 12 Sep 2013 04:07:53 GMT
  */
 
@@ -69,7 +69,7 @@ class Database extends pdo
         $this->user = $config['dbuname'];
         try {
             parent::__construct($dsn, $config['dbuname'], $config['dbpass'], $driver_options);
-            parent::exec("SET SESSION time_zone='" . SITE_TIMEZONE_GMT_NAME . "'");
+            parent::exec("SET SESSION time_zone='" . NV_SITE_TIMEZONE_GMT_NAME . "'");
             $this->connect = 1;
         } catch (PDOException $e) {
             trigger_error($e->getMessage());

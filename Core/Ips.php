@@ -1,10 +1,10 @@
 <?php
 
 /**
- * @Project e.com.vn
- * @Author vndes.net
- 
- 
+ * @Project Vndes 4.x
+ * @Author VINADES.,JSC <contact@vinades.vn>
+ * @Copyright (C) 2014 VINADES.,JSC. All rights reserved
+ * @License GNU/GPL version 2 or any later version
  * @Createdate 1-27-2010 5:25
  */
 namespace Vndes\Core;
@@ -31,41 +31,46 @@ class Ips
      */
     public function __construct()
     {
-        $this->client_ip = trim($this->e_get_clientip());
-        $this->forward_ip = trim($this->e_get_forwardip());
-        $this->remote_addr = trim($this->e_get_remote_addr());
-        $this->remote_ip = trim($this->e_getip());
+        $this->client_ip = trim($this->nv_get_clientip());
+        $this->forward_ip = trim($this->nv_get_forwardip());
+        $this->remote_addr = trim($this->nv_get_remote_addr());
+        $this->remote_ip = trim($this->nv_getip());
     }
 
     /**
-     * ips::e_getenv()
+     * ips::nv_getenv()
      *
      * @param mixed $key
      * @return
      *
      */
-    private function e_getenv($key)
+    private function nv_getenv($key)
     {
         if (isset($_SERVER[$key])) {
-            return $_SERVER[$key];
+            if (strpos($_SERVER[$key], ',')) {
+                $_arr = explode(',', $_SERVER[$key]);
+                return trim($_arr[0]);
+            } else {
+                return $_SERVER[$key];
+            }
         } elseif (isset($_ENV[$key])) {
             return $_ENV[$key];
         } elseif (@getenv($key)) {
             return @getenv($key);
-        } elseif (function_exists('apache_getenv') && apache_getenv($key, true)) {
+        } elseif (function_exists('apache_getenv') and apache_getenv($key, true)) {
             return apache_getenv($key, true);
         }
         return '';
     }
 
     /**
-     * ips::e_validip()
+     * ips::nv_validip()
      *
      * @param mixed $ip
      * @return
      *
      */
-    public function e_validip($ip)
+    public function nv_validip($ip)
     {
         return filter_var($ip, FILTER_VALIDATE_IP);
     }
@@ -78,8 +83,8 @@ class Ips
      */
     public function server_ip()
     {
-        $serverip = $this->e_getenv('SERVER_ADDR');
-        if ($this->e_validip($serverip)) {
+        $serverip = $this->nv_getenv('SERVER_ADDR');
+        if ($this->nv_validip($serverip)) {
             return $serverip;
         } elseif ($_SERVER['SERVER_NAME'] == 'localhost') {
             return '127.0.0.1';
@@ -90,25 +95,25 @@ class Ips
     }
 
     /**
-     * ips::e_get_clientip()
+     * ips::nv_get_clientip()
      *
      * @return
      *
      */
-    private function e_get_clientip()
+    private function nv_get_clientip()
     {
         $clientip = '';
-        if ($this->e_getenv('HTTP_CLIENT_IP')) {
-            $clientip = $this->e_getenv('HTTP_CLIENT_IP');
-        } elseif ($this->e_getenv('HTTP_VIA')) {
-            $clientip = $this->e_getenv('HTTP_VIA');
-        } elseif ($this->e_getenv('HTTP_X_COMING_FROM')) {
-            $clientip = $this->e_getenv('HTTP_X_COMING_FROM');
-        } elseif ($this->e_getenv('HTTP_COMING_FROM')) {
-            $clientip = $this->e_getenv('HTTP_COMING_FROM');
+        if ($this->nv_getenv('HTTP_CLIENT_IP')) {
+            $clientip = $this->nv_getenv('HTTP_CLIENT_IP');
+        } elseif ($this->nv_getenv('HTTP_VIA')) {
+            $clientip = $this->nv_getenv('HTTP_VIA');
+        } elseif ($this->nv_getenv('HTTP_X_COMING_FROM')) {
+            $clientip = $this->nv_getenv('HTTP_X_COMING_FROM');
+        } elseif ($this->nv_getenv('HTTP_COMING_FROM')) {
+            $clientip = $this->nv_getenv('HTTP_COMING_FROM');
         }
 
-        if ($this->e_validip($clientip)) {
+        if ($this->nv_validip($clientip)) {
             return $clientip;
         } else {
             return 'none';
@@ -116,47 +121,47 @@ class Ips
     }
 
     /**
-     * ips::e_get_forwardip()
+     * ips::nv_get_forwardip()
      *
      * @return
      *
      */
-    private function e_get_forwardip()
+    private function nv_get_forwardip()
     {
-        if ($this->e_getenv('HTTP_X_FORWARDED_FOR') and $this->e_validip($this->e_getenv('HTTP_X_FORWARDED_FOR'))) {
-            return $this->e_getenv('HTTP_X_FORWARDED_FOR');
-        } elseif ($this->e_getenv('HTTP_X_FORWARDED') and $this->e_validip($this->e_getenv('HTTP_X_FORWARDED'))) {
-            return $this->e_getenv('HTTP_X_FORWARDED');
-        } elseif ($this->e_getenv('HTTP_FORWARDED_FOR') and $this->e_validip($this->e_getenv('HTTP_FORWARDED_FOR'))) {
-            return $this->e_getenv('HTTP_FORWARDED_FOR');
-        } elseif ($this->e_getenv('HTTP_FORWARDED') and $this->e_validip($this->e_getenv('HTTP_FORWARDED'))) {
-            return $this->e_getenv('HTTP_FORWARDED');
+        if ($this->nv_getenv('HTTP_X_FORWARDED_FOR') and $this->nv_validip($this->nv_getenv('HTTP_X_FORWARDED_FOR'))) {
+            return $this->nv_getenv('HTTP_X_FORWARDED_FOR');
+        } elseif ($this->nv_getenv('HTTP_X_FORWARDED') and $this->nv_validip($this->nv_getenv('HTTP_X_FORWARDED'))) {
+            return $this->nv_getenv('HTTP_X_FORWARDED');
+        } elseif ($this->nv_getenv('HTTP_FORWARDED_FOR') and $this->nv_validip($this->nv_getenv('HTTP_FORWARDED_FOR'))) {
+            return $this->nv_getenv('HTTP_FORWARDED_FOR');
+        } elseif ($this->nv_getenv('HTTP_FORWARDED') and $this->nv_validip($this->nv_getenv('HTTP_FORWARDED'))) {
+            return $this->nv_getenv('HTTP_FORWARDED');
         } else {
             return 'none';
         }
     }
 
     /**
-     * ips::e_get_remote_addr()
+     * ips::nv_get_remote_addr()
      *
      * @return
      *
      */
-    private function e_get_remote_addr()
+    private function nv_get_remote_addr()
     {
-        if ($this->e_getenv('REMOTE_ADDR') and $this->e_validip($this->e_getenv('REMOTE_ADDR'))) {
-            return $this->e_getenv('REMOTE_ADDR');
+        if ($this->nv_getenv('REMOTE_ADDR') and $this->nv_validip($this->nv_getenv('REMOTE_ADDR'))) {
+            return $this->nv_getenv('REMOTE_ADDR');
         }
         return 'none';
     }
 
     /**
-     * ips::e_getip()
+     * ips::nv_getip()
      *
      * @return
      *
      */
-    private function e_getip()
+    private function nv_getip()
     {
         if ($this->client_ip != 'none') {
             return $this->client_ip;
@@ -175,15 +180,15 @@ class Ips
     }
 
     /**
-     * ips::e_chech_proxy()
+     * ips::nv_chech_proxy()
      *
      * @return
      *
      */
-    public function e_check_proxy()
+    public function nv_check_proxy()
     {
         $proxy = 'No';
-        if ($this->client_ip != 'none' || $this->forward_ip != 'none') {
+        if ($this->client_ip != 'none' or $this->forward_ip != 'none') {
             $proxy = 'Lite';
         }
         $host = @getHostByAddr($this->remote_ip);

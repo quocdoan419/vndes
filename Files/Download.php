@@ -1,10 +1,10 @@
 <?php
 
 /**
- * @Project e.com.vn
- * @Author vndes.net
- 
- 
+ * @Project Vndes 4.x
+ * @Author VINADES.,JSC <contact@vinades.vn>
+ * @Copyright (C) 2014 VINADES.,JSC. All rights reserved
+ * @License GNU/GPL version 2 or any later version
  * @Createdate 17/8/2010, 0:16
  */
 
@@ -12,8 +12,8 @@ namespace Vndes\Files;
 
 use finfo;
 
-if (! defined('MIME_INI_FILE')) {
-    define('MIME_INI_FILE', ROOTDIR . '/includes/ini/mime.ini');
+if (! defined('NV_MIME_INI_FILE')) {
+    define('NV_MIME_INI_FILE', NV_ROOTDIR . '/includes/ini/mime.ini');
 }
 
 class Download
@@ -46,7 +46,7 @@ class Download
     {
         $directory = $this->real_dir($directory);
         if (empty($directory) or ! is_dir($directory)) {
-            $directory = UPLOADS_REAL_DIR;
+            $directory = NV_UPLOADS_REAL_DIR;
         }
         $disable_functions = (ini_get('disable_functions') != '' and ini_get('disable_functions') != false) ? array_map('trim', preg_split("/[\s,]+/", ini_get('disable_functions'))) : array();
         if (extension_loaded('suhosin')) {
@@ -90,7 +90,7 @@ class Download
         }
         $dir = str_replace('\\', '/', $dir);
         $dir = rtrim($dir, "\\/");
-        if (! preg_match("/^(" . e_preg_quote(ROOTDIR) . ")(\/[\S]+)/", $dir)) {
+        if (! preg_match("/^(" . nv_preg_quote(NV_ROOTDIR) . ")(\/[\S]+)/", $dir)) {
             return false;
         }
         return $dir;
@@ -117,7 +117,7 @@ class Download
         $realpath = str_replace('\\', '/', $realpath);
         $realpath = rtrim($realpath, "\\/");
 
-        if (! preg_match("/^(" . e_preg_quote($dir) . ")(\/[\S]+)/", $realpath)) {
+        if (! preg_match("/^(" . nv_preg_quote($dir) . ")(\/[\S]+)/", $realpath)) {
             return false;
         }
 
@@ -251,7 +251,7 @@ class Download
         }
 
         if (empty($mime) or $mime == 'application/octet-stream') {
-            $mime_types = e_parse_ini_file(MIME_INI_FILE);
+            $mime_types = nv_parse_ini_file(NV_MIME_INI_FILE);
 
             if (array_key_exists($this->properties['extension'], $mime_types)) {
                 if (is_string($mime_types[$this->properties['extension']])) {
@@ -303,12 +303,12 @@ class Download
     }
 
     /**
-     * download::e_getenv()
+     * download::nv_getenv()
      *
      * @param mixed $key
      * @return
      */
-    private function e_getenv($key)
+    private function nv_getenv($key)
     {
         if (isset($_SERVER[$key])) {
             return $_SERVER[$key];
@@ -316,7 +316,7 @@ class Download
             return $_ENV[$key];
         } elseif (@getenv($key)) {
             return @getenv($key);
-        } elseif (function_exists('apache_getenv') && apache_getenv($key, true)) {
+        } elseif (function_exists('apache_getenv') and apache_getenv($key, true)) {
             return apache_getenv($key, true);
         }
         return '';
@@ -363,14 +363,14 @@ class Download
     public function download_file()
     {
         if (! $this->properties['path']) {
-            die('Nothing to download!');
+            exit('Nothing to download!');
         }
 
         $seek_start = 0;
         $seek_end = - 1;
         $data_section = false;
 
-        if (($http_range = e_getenv('HTTP_RANGE')) != '') {
+        if (($http_range = nv_getenv('HTTP_RANGE')) != '') {
             $seek_range = substr($http_range, 6);
 
             $range = explode('-', $seek_range);
@@ -406,7 +406,7 @@ class Download
         $res = fopen($this->properties['path'], 'rb');
 
         if (! $res) {
-            die('File error');
+            exit('File error');
         }
 
         if ($seek_start) {
@@ -422,7 +422,7 @@ class Download
         header('Cache-Control: public');
         header('Content-Description: File Transfer');
         header('Content-Type: ' . $this->properties['type']);
-        if (strstr($this->e_getenv('HTTP_USER_AGENT'), 'MSIE') != false) {
+        if (strstr($this->nv_getenv('HTTP_USER_AGENT'), 'MSIE') != false) {
             header('Content-Disposition: attachment; filename="' . urlencode($this->properties['name']) . '";');
         } else {
             header('Content-Disposition: attachment; filename="' . $this->properties['name'] . '";');
@@ -430,8 +430,7 @@ class Download
         header('Last-Modified: ' . date('D, d M Y H:i:s \G\M\T', $this->properties['mtime']));
 
         if ($data_section and $this->properties['resume']) {
-            header('HTTP/1.1 206 Partial Content');
-            header('Status: 206 Partial Content');
+            http_response_code(206);
             header('Accept-Ranges: bytes');
             header('Content-Range: bytes ' . $seek_start . '-' . $seek_end . '/' . $this->properties['size']);
             header('Content-Length: ' . ($seek_end - $seek_start + 1));
@@ -458,6 +457,6 @@ class Download
         if (function_exists('set_time_limit') and ! in_array('set_time_limit', $this->disable_functions)) {
             set_time_limit(ini_get('max_execution_time'));
         }
-        exit();
+        exit(0);
     }
 }
